@@ -1,0 +1,36 @@
+name: GitHub Self-Updating Repository Demo
+
+on:
+  # Schedule workflow on a random day of the week
+  schedule:
+    - cron: "0 0 * * 1"
+    - cron: "0 0 * * 2"
+    - cron: "0 0 * * 3"
+    - cron: "0 0 * * 4"
+    - cron: "0 0 * * 5"
+    - cron: "0 0 * * 6"
+    - cron: "0 0 * * 7"
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        # https://github.com/actions/checkout/tree/v3.0.2
+        uses: actions/checkout@v3
+      - name: Modify date and time
+        run: |
+          day_of_week=$(date +%u)
+          if (( day_of_week == RANDOM % 7 + 1 )); then
+            echo "Triggering update for day: $(date)" >> README.md
+            cat README.md
+          fi
+      - name: Push to repository
+        if: ${{ steps.modify.outputs.run == 'true' }}
+        run: |
+          git config --global user.name "ZoreAnuj"
+          git config --global user.email "zoreanuj@gmail.com"
+          now=$(date)
+          git add -A
+          git commit -m "Auto Push on $now"
+          git push
